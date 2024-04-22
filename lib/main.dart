@@ -1,192 +1,118 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_google_maps/location_service.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_google_maps/camera/photoUpload.dart';
+import 'package:flutter_google_maps/chat/chat.dart';
+import 'map/Map.dart';
 
-void main() => runApp(MyApp());
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key, }) : super(key: key);
+
+  static const appTitle = 'Drawer Demo';
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Google Maps Demo',
-      home: MapSample(),
+    return const MaterialApp(
+      title: appTitle,
+      home: MyHomePage(title: appTitle),
     );
   }
 }
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-class MapSample extends StatefulWidget {
+  final String title;
+
   @override
-  State<MapSample> createState() => MapSampleState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class MapSampleState extends State<MapSample> {
-  Completer<GoogleMapController> _controller = Completer();
-  TextEditingController _originController = TextEditingController();
-  TextEditingController _destinationController = TextEditingController();
+class _MyHomePageState extends State<MyHomePage> {
+  int _selectedIndex = 0;
 
-  Set<Marker> _markers = Set<Marker>();
-  Set<Polygon> _polygons = Set<Polygon>();
-  Set<Polyline> _polylines = Set<Polyline>();
-  List<LatLng> polygonLatLngs = <LatLng>[];
-
-  int _polygonIdCounter = 1;
-  int _polylineIdCounter = 1;
-
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-
-    _setMarker(LatLng(37.42796133580664, -122.085749655962));
-  }
-
-  void _setMarker(LatLng point) {
+  void _onItemTapped(int index) {
     setState(() {
-      _markers.add(
-        Marker(
-          markerId: MarkerId('marker'),
-          position: point,
-        ),
-      );
+      _selectedIndex = index;
     });
   }
 
-  void _setPolygon() {
-    final String polygonIdVal = 'polygon_$_polygonIdCounter';
-    _polygonIdCounter++;
-
-    _polygons.add(
-      Polygon(
-        polygonId: PolygonId(polygonIdVal),
-        points: polygonLatLngs,
-        strokeWidth: 2,
-        fillColor: Colors.transparent,
-      ),
-    );
-  }
-
-  void _setPolyline(List<PointLatLng> points) {
-    final String polylineIdVal = 'polyline_$_polylineIdCounter';
-    _polylineIdCounter++;
-
-    _polylines.add(
-      Polyline(
-        polylineId: PolylineId(polylineIdVal),
-        width: 2,
-        color: Colors.blue,
-        points: points
-            .map(
-              (point) => LatLng(point.latitude, point.longitude),
-            )
-            .toList(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text('Google Maps'),
-      ),
-      body: Column(
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: IndexedStack(
+        index: _selectedIndex,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _originController,
-                      decoration: InputDecoration(hintText: ' Origin'),
-                      onChanged: (value) {
-                        print(value);
-                      },
-                    ),
-                    TextFormField(
-                      controller: _destinationController,
-                      decoration: InputDecoration(hintText: ' Destination'),
-                      onChanged: (value) {
-                        print(value);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () async {
-                  var directions = await LocationService().getDirections(
-                    _originController.text,
-                    _destinationController.text,
-                  );
-                  _goToPlace(
-                    directions['start_location']['lat'],
-                    directions['start_location']['lng'],
-                    directions['bounds_ne'],
-                    directions['bounds_sw'],
-                  );
-
-                  _setPolyline(directions['polyline_decoded']);
-                },
-                icon: Icon(Icons.search),
-              ),
-            ],
+          GMap(), // Your custom widget for the map
+          photoUpload(),
+          Center(
+            child: Text('Index 2: School'),
           ),
-          Expanded(
-            child: GoogleMap(
-              mapType: MapType.normal,
-              markers: _markers,
-              polygons: _polygons,
-              polylines: _polylines,
-              initialCameraPosition: _kGooglePlex,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              onTap: (point) {
-                setState(() {
-                  polygonLatLngs.add(point);
-                  _setPolygon();
-                });
-              },
-            ),
-          ),
+          ChatBot(),
         ],
       ),
-    );
-  }
-
-  Future<void> _goToPlace(
-    // Map<String, dynamic> place,
-    double lat,
-    double lng,
-    Map<String, dynamic> boundsNe,
-    Map<String, dynamic> boundsSw,
-  ) async {
-    // final double lat = place['geometry']['location']['lat'];
-    // final double lng = place['geometry']['location']['lng'];
-
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(lat, lng), zoom: 12),
+      drawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text('Drawer Header'),
+            ),
+            ListTile(
+              title: const Text('Map'),
+              selected: _selectedIndex == 0,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                // Update the state of the app
+                _onItemTapped(0);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Photo Upload'),
+              selected: _selectedIndex == 1,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                // Update the state of the app
+                _onItemTapped(1);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('School'),
+              selected: _selectedIndex == 2,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                // Update the state of the app
+                _onItemTapped(2);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('chat'),
+              selected: _selectedIndex == 3,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                // Update the state of the app
+                _onItemTapped(3);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
-
-    controller.animateCamera(
-      CameraUpdate.newLatLngBounds(
-          LatLngBounds(
-            southwest: LatLng(boundsSw['lat'], boundsSw['lng']),
-            northeast: LatLng(boundsNe['lat'], boundsNe['lng']),
-          ),
-          25),
-    );
-    _setMarker(LatLng(lat, lng));
   }
 }
