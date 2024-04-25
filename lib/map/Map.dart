@@ -29,9 +29,10 @@ double longitude = 0.0;
 class GMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Google Maps Demo',
-      home: MapSample(),
+    return Scaffold(
+      
+      // title: 'Flutter Google Maps Demo',
+      body: MapSample(),
     );
   }
 }

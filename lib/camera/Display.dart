@@ -5,6 +5,13 @@ import 'package:flutter_google_maps/map/Map.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+
+Widget displayPDF(String pdfPath) {
+  return PDFView(
+    filePath: pdfPath,
+  );
+}
 
 
 // import 'flutter'
@@ -70,13 +77,14 @@ class DisplayPictureScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Display the Picture')),
       // The image is stored as a file on the device. Use the `Image.file`
       // constructor with the given path to display the image.
-      body: Image.file(File(imagePath)),
+      // body: Image.file(File(imagePath)),
+      body: imagePath.contains('.pdf') ? displayPDF(imagePath) : Image.file(File(imagePath)),
       floatingActionButton: 
 
        Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
       FloatingActionButton(
           heroTag: 'ok_button',
@@ -105,20 +113,20 @@ class DisplayPictureScreen extends StatelessWidget {
 // Navigator.of(context).popUntil((_) => count++ >= 2);
           
         },
-        child: Icon(Icons.my_location),
+        child: Icon(Icons.send),
       ),
-     FloatingActionButton.extended(
-  heroTag: 'retake_button',
-  onPressed: () {
-  // Navigator.of(context).pop();
-  Navigator.pop(context);
+//      FloatingActionButton.extended(
+//   heroTag: 'retake_button',
+//   onPressed: () {
+//   // Navigator.of(context).pop();
+//   Navigator.pop(context);
   
-  // Navigator.popUntil(context, (route) => route.isFirst);
+//   // Navigator.popUntil(context, (route) => route.isFirst);
   
   
-},
-  label: Text("Retake"),
-), 
+// },
+//   label: Text("Back"),
+// ), 
         ],
       ),
     ),

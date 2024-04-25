@@ -113,31 +113,31 @@ Future<String?> pickAndUploadFile() async {
       },
       child: const Icon(Icons.camera_alt),
     ),
-    FloatingActionButton(
-      heroTag: 'btn2',
-      onPressed: () async {
-     String? selectedPath = await pickAndUploadFile();
-if (selectedPath != null) {
-  // Navigator.of(context).pop();
-  // Navigator.pop(context);
-  Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => DisplayPictureScreen(
-      imagePath: selectedPath,
-    ),
-    settings: RouteSettings(name: 'c'),
-  ),
-);
-    // File path is available, you can use it here
-} else {
-    // No file was selected
-    print("error");
-}
+//     FloatingActionButton(
+//       heroTag: 'btn2',
+//       onPressed: () async {
+//      String? selectedPath = await pickAndUploadFile();
+// if (selectedPath != null) {
+//   // Navigator.of(context).pop();
+//   // Navigator.pop(context);
+//   Navigator.push(
+//   context,
+//   MaterialPageRoute(
+//     builder: (context) => DisplayPictureScreen(
+//       imagePath: selectedPath,
+//     ),
+//     settings: RouteSettings(name: 'c'),
+//   ),
+// );
+//     // File path is available, you can use it here
+// } else {
+//     // No file was selected
+//     print("error");
+// }
       
-      },
-      child: const Icon(Icons.add),
-    ),
+//       },
+//       child: const Icon(Icons.add),
+//     ),
   ],
 ),
     );
